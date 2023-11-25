@@ -2,9 +2,6 @@ package dummy
 
 import (
 	"crypto/rand"
-	"fmt"
-	"log/slog"
-	"math"
 	"time"
 )
 
@@ -22,123 +19,152 @@ func (d *Dummy) SetSleep(sleep time.Duration) {
 	d.sleepDuration = sleep
 }
 
-func (d *Dummy) sleep() {
-	time.Sleep(d.sleepDuration)
-}
-
-func (d *Dummy) BranchFunc() {
-	var randBuf []byte = make([]byte, 1)
-	rand.Reader.Read(randBuf)
-
-	if randBuf[0] > 128 {
+//go:noinline
+func (d *Dummy) BranchFunc(A bool) {
+	if A {
 		d.branchA() // 50%
 	} else {
 		d.branchB() // 50%
 	}
 }
 
+//go:noinline
 func (d *Dummy) DeepFunc() {
 	d.deepFuncLv1()
 }
 
+//go:noinline
 func (d *Dummy) LoopFunc(n int) {
 	for i := 0; i < n; i++ {
 		d.loopFuncInner()
 	}
 }
 
+//go:noinline
+func (d *Dummy) MultiFunc() {
+	d.multiFuncA()
+	d.multiFuncB()
+	d.multiFuncC()
+	d.multiFuncD()
+}
+
+//go:noinline
 func (d *Dummy) RecursiveFunc(n int) {
 	if n == 0 {
 		return
 	}
-	d.recursiveFuncInner(n)
+	d.recursiveFuncInnerA(n)
 }
 
+//go:noinline
 func (d *Dummy) branchA() {
 	d.sleep()
-	slog.Debug("hit branchA")
-	var buf []byte = make([]byte, 16)
-	rand.Reader.Read(buf)
 	d.branchAinner()
 }
 
+//go:noinline
 func (d *Dummy) branchAinner() {
-	d.sleep()
-	slog.Debug("hit branchA inner")
-	var bufInner []byte = make([]byte, 32)
-	rand.Reader.Read(bufInner)
+	d.final()
 }
 
+//go:noinline
 func (d *Dummy) branchB() {
 	d.sleep()
-	slog.Debug("hit branchB")
-	var buf []byte = make([]byte, 32)
-	rand.Reader.Read(buf)
 	d.branchBinner()
 }
 
+//go:noinline
 func (d *Dummy) branchBinner() {
-	d.sleep()
-	slog.Debug("hit branchB inner")
-	var bufInner []byte = make([]byte, 64)
-	rand.Reader.Read(bufInner)
+	d.final()
 }
 
+//go:noinline
 func (d *Dummy) deepFuncLv1() {
 	d.sleep()
-	slog.Debug("deepFuncLv1")
-	var buf []byte = make([]byte, 2)
-	rand.Reader.Read(buf)
 	d.deepFuncLv2()
 }
 
+//go:noinline
 func (d *Dummy) deepFuncLv2() {
 	d.sleep()
-	slog.Debug("deepFuncLv2")
-	var buf []byte = make([]byte, 4)
-	rand.Reader.Read(buf)
 	d.deepFuncLv3()
 }
 
+//go:noinline
 func (d *Dummy) deepFuncLv3() {
 	d.sleep()
-	slog.Debug("deepFuncLv3")
-	var buf []byte = make([]byte, 8)
-	rand.Reader.Read(buf)
 	d.deepFuncLv4()
 }
 
+//go:noinline
 func (d *Dummy) deepFuncLv4() {
 	d.sleep()
-	slog.Debug("deepFuncLv4")
-	var buf []byte = make([]byte, 16)
-	rand.Reader.Read(buf)
 	d.deepFuncLv5()
 }
 
+//go:noinline
 func (d *Dummy) deepFuncLv5() {
-	d.sleep()
-	slog.Debug("deepFuncLv5")
-	var buf []byte = make([]byte, 32)
-	rand.Reader.Read(buf)
-	return
+	d.final()
 }
 
+//go:noinline
+func (d *Dummy) multiFuncA() {
+	d.final()
+}
+
+//go:noinline
+func (d *Dummy) multiFuncB() {
+	d.final()
+}
+
+//go:noinline
+func (d *Dummy) multiFuncC() {
+	d.final()
+}
+
+//go:noinline
+func (d *Dummy) multiFuncD() {
+	d.final()
+}
+
+//go:noinline
 func (d *Dummy) loopFuncInner() {
-	d.sleep()
-	slog.Debug("hit loopFunc Inner")
-	var buf []byte = make([]byte, 8)
-	rand.Reader.Read(buf)
+	d.final()
 }
 
-func (d *Dummy) recursiveFuncInner(n int) {
+//go:noinline
+func (d *Dummy) recursiveFuncInnerA(n int) {
+	d.sleep()
 	if n == 0 {
+		d.final()
 		return
 	}
+	d.recursiveFuncInnerB(n)
+}
 
+//go:noinline
+func (d *Dummy) recursiveFuncInnerB(n int) {
 	d.sleep()
-	slog.Debug(fmt.Sprintf("hit recursiveFunc Inner n=%d", n))
-	var buf []byte = make([]byte, int(math.Pow(2, float64(n))))
+	if n == 0 {
+		d.final()
+		return
+	}
+	d.recursiveFuncInnerA(n - 1)
+}
+
+//go:noinline
+func (d *Dummy) final() {
+	d.sleep()
+	d.alloc()
+}
+
+//go:inline
+func (d *Dummy) sleep() {
+	// time.Sleep(d.sleepDuration)
+}
+
+//go:noinline
+func (d *Dummy) alloc() {
+	var buf []byte = make([]byte, 8)
 	rand.Reader.Read(buf)
-	d.recursiveFuncInner(n - 1)
 }

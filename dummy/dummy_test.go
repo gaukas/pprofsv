@@ -10,7 +10,7 @@ func TestDummyBranchFunc(t *testing.T) {
 	d := dummy.NewDummy()
 
 	for i := 0; i < 10; i++ {
-		d.BranchFunc()
+		d.BranchFunc(i%2 == 0)
 	}
 }
 
@@ -18,6 +18,12 @@ func TestDummyDeepFunc(t *testing.T) {
 	d := dummy.NewDummy()
 
 	d.DeepFunc()
+}
+
+func TestDummyInlineFunc(t *testing.T) {
+	d := dummy.NewDummy()
+
+	d.MultiFunc()
 }
 
 func TestDummyLoopFunc(t *testing.T) {
@@ -36,7 +42,7 @@ func BenchmarkDummyBranchFunc(b *testing.B) {
 	d := dummy.NewDummy()
 
 	for i := 0; i < b.N; i++ {
-		d.BranchFunc()
+		d.BranchFunc(i%2 == 0)
 	}
 }
 
@@ -45,6 +51,14 @@ func BenchmarkDummyDeepFunc(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		d.DeepFunc()
+	}
+}
+
+func BenchmarkDummyInlineFunc(b *testing.B) {
+	d := dummy.NewDummy()
+
+	for i := 0; i < b.N; i++ {
+		d.MultiFunc()
 	}
 }
 

@@ -1,6 +1,6 @@
-PROTO_DIR=proto
+PROTO_DIR=pb
 
-proto: ${PROTO_DIR}/profile.proto
+protobuf: ${PROTO_DIR}/profile.proto
 	protoc --go_out=. --go_opt=paths=source_relative ${PROTO_DIR}/profile.proto
 
-.PHONY: proto
+.PHONY: protobuf

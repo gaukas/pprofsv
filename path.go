@@ -50,14 +50,14 @@ func (p *Path) Set(i, j int) {
 }
 
 // HasPath returns true if there is a
-func (p *Path) HasPath(i, j int) bool {
+func (p *Path) HasPath(i, j int, skipped ...int) bool {
 	p.rw.RLock()
 	defer p.rw.RUnlock()
 	if p.allPaths[i][j] {
 		return true
 	}
 
-	p.allPaths[i][j] = p.satCheckPath(i, j)
+	p.allPaths[i][j] = p.satCheckPath(i, j, skipped...)
 	return p.allPaths[i][j]
 }
 
@@ -67,7 +67,7 @@ func (p *Path) HasDirectPath(i, j int) bool {
 	return p.directPaths[i][j]
 }
 
-func (p *Path) satCheckPath(i, j int) bool {
+func (p *Path) satCheckPath(i, j int, skipped ...int) bool {
 	// SAT problem:
 	//  1) For all a, b, if p.allPaths[a][b] is true, add constraint: R(a,b) == true.
 	//  2) add constraint: (R(a,b) && R(b,c)) => R(a,c)
@@ -80,9 +80,10 @@ func (p *Path) satCheckPath(i, j int) bool {
 	constraints = bf.And(constraints, bf.Unique(fmt.Sprintf(varFmt, i, j, true), fmt.Sprintf(varFmt, i, j, false)))
 
 	// 1) For all a, b, if p.allPaths[a][b] is true, add constraint: R(a,b) == true.
+	// 2) unless b is in skipped
 	for a := range p.allPaths {
 		for b := range p.allPaths[a] {
-			if p.allPaths[a][b] {
+			if p.allPaths[a][b] && !contains(skipped, b) {
 				constraints = bf.And(constraints, bf.Var(fmt.Sprintf(varFmt, a, b, true)))
 			}
 		}

@@ -125,7 +125,7 @@ func NewVerifier(masterProfile *Profile, baseCallStacks [][]uint64, namePattern 
 }
 
 // Reachable checks if there's a path from function `from` to function `to`.
-func (v *Verifier) Reachable(from, to string) bool {
+func (v *Verifier) Reachable(from, to string, skipped ...string) bool {
 	fromName := v.functionPrefix + from
 	toName := v.functionPrefix + to
 
@@ -141,7 +141,17 @@ func (v *Verifier) Reachable(from, to string) bool {
 		return false
 	}
 
-	return v.path.HasPath(int(v.functionIdPseudoMap[fromId]), int(v.functionIdPseudoMap[toId]))
+	var skippedIds []int
+	for _, skippedName := range skipped {
+		skippedId, ok := v.masterProfile.functionNameMap[v.functionPrefix+skippedName]
+		if !ok {
+			log.Printf("function %s not found", skippedName)
+			continue
+		}
+		skippedIds = append(skippedIds, int(v.functionIdPseudoMap[skippedId]))
+	}
+
+	return v.path.HasPath(int(v.functionIdPseudoMap[fromId]), int(v.functionIdPseudoMap[toId]), skippedIds...)
 }
 
 // Next checks if there's a direct path from function `from` to function `to`.

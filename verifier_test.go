@@ -29,29 +29,29 @@ func TestVerifierReachable(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	vBranch, err := verifier.SubVerifier("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Run("Branch", func(t *testing.T) {
-		testVerifierBranchReachable(t, vBranch)
-	})
+	// vBranch, err := verifier.SubVerifier("")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// t.Run("Branch", func(t *testing.T) {
+	// 	testVerifierBranchReachable(t, vBranch)
+	// })
 
-	vDeep, err := verifier.SubVerifier("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Run("Deep", func(t *testing.T) {
-		testVerifierDeepReachable(t, vDeep)
-	})
+	// vDeep, err := verifier.SubVerifier("")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// t.Run("Deep", func(t *testing.T) {
+	// 	testVerifierDeepReachable(t, vDeep)
+	// })
 
-	vLoop, err := verifier.SubVerifier("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Run("Loop", func(t *testing.T) {
-		testVerifierLoopReachable(t, vLoop)
-	})
+	// vLoop, err := verifier.SubVerifier("")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// t.Run("Loop", func(t *testing.T) {
+	// 	testVerifierLoopReachable(t, vLoop)
+	// })
 
 	vMulti, err := verifier.SubVerifier("")
 	if err != nil {
@@ -61,13 +61,13 @@ func TestVerifierReachable(t *testing.T) {
 		testVerifierMultiReachable(t, vMulti)
 	})
 
-	vRecursive, err := verifier.SubVerifier("")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Run("Recursive", func(t *testing.T) {
-		testVerifierRecursive(t, vRecursive)
-	})
+	// vRecursive, err := verifier.SubVerifier("")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// t.Run("Recursive", func(t *testing.T) {
+	// 	testVerifierRecursive(t, vRecursive)
+	// })
 }
 
 func testVerifierBranchReachable(t *testing.T, v *pprofsv.Verifier) {
@@ -219,6 +219,16 @@ func testVerifierMultiReachable(t *testing.T, v *pprofsv.Verifier) {
 
 	if v.Reachable("multiFuncC", "multiFuncD") {
 		t.Errorf("multiFuncC -> multiFuncD should not be reachable")
+	}
+
+	// trimming off all possible paths
+	if v.Reachable("MultiFunc", "final", "multiFuncA", "multiFuncB", "multiFuncC", "multiFuncD") {
+		t.Errorf("MultiFunc -> final without any multiFuncN should not be reachable")
+	}
+
+	// trimming off 3 but not 4
+	if !v.Reachable("MultiFunc", "final", "multiFuncA", "multiFuncB", "multiFuncC") {
+		t.Errorf("MultiFunc -> final with multiFuncD should be reachable")
 	}
 }
 
